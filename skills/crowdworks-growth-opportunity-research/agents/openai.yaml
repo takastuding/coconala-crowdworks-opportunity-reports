@@ -1,0 +1,4 @@
+interface:
+  display_name: "CrowdWorks Opportunity Research"
+  short_description: "Research weekend-safe CrowdWorks work for sharoushi and FP1 growth."
+  default_prompt: "Research suitable CrowdWorks sharoushi/FP side-work opportunities, rank them, draft an application, and save the report to GitHub takastuding/coconala-crowdworks-opportunity-reports."

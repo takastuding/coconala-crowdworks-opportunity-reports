@@ -1,6 +1,6 @@
 ---
 name: coconala-growth-opportunity-research
-description: Use when Codex needs to research Coconala opportunities for the user, including Coconala job matching, buyer requests, retirement consultation demand, public service/category market signals, competitor/service analysis, buyer-demand scouting, weekend-safe side-business opportunities using shakaihoken/labor knowledge, sharoushi credentials, FP1, pensions, unemployment insurance, injury/sickness allowance, insurance, household finance, retirement, benefits, writing, and drafting Japanese proposals or Coconala service revisions.
+description: Use when Codex needs to research Coconala opportunities for the user, including Coconala job matching, buyer requests, public service/category market signals, competitor/service analysis, buyer-demand scouting, weekend-safe side-business opportunities using shakaihoken/labor knowledge, sharoushi credentials, FP1, pensions, insurance, household finance, retirement, benefits, writing, and drafting Japanese proposals or Coconala service revisions.
 ---
 
 # Coconala Growth Opportunity Research
@@ -20,21 +20,72 @@ Optimize for growth, reputation safety, and realistic weekend execution, not onl
 
 ## Workflow
 
-1. Confirm the latest Coconala pages by searching the web or the platform directly. Do not rely on memory for current listings.
-2. Search buyer-posted opportunities first:
+1. Read automation or repository memory when provided. Use it to avoid repeating recent weak candidates, but never rely on memory for active listings.
+2. At the start of an automation run, append a UTF-8 memory entry with these labels:
+   - `Run started`
+   - `Target report date`
+   - `Previous successful report date`
+   - `Next expected run`
+3. Confirm the latest Coconala pages by searching the web or the platform directly.
+4. Search buyer-posted opportunities first:
    - Coconala work index: `https://coconala.com/job_matching/supplier`
    - Spot/request categories such as writing (`/requests/categories/19`) and consulting/professionals (`/requests/categories/27`)
    - Ongoing job categories such as financial professionals (`/job_matching/outsources/jobs/24`) and licensed/professional work (`/job_matching/outsources/jobs/25`)
-3. Search market signals next:
+5. Search market signals next:
    - Writing services (`https://coconala.com/categories/19`)
    - Consulting/professional services (`https://coconala.com/categories/27`)
    - Asset management/side-business consultation (`https://coconala.com/categories/17`)
    - Retirement, career, labor, and life-event consultation services, including Coconala category/search pages for `退職相談`, `退職代行ではない相談`, `傷病手当金`, `失業保険`, `社会保険`, `年金`, `転職相談`, and `キャリア相談`.
    - Coconala blogs and know-how pages when they reveal buyer concerns or proven titles.
-4. Use narrow searches with Coconala plus terms such as `社労士`, `社会保険労務士`, `労務`, `退職`, `退職相談`, `退職前`, `退職後`, `退職したい`, `会社を辞めたい`, `有給消化`, `離職票`, `傷病手当金`, `失業保険`, `雇用保険`, `健康保険`, `国民健康保険`, `任意継続`, `社会保険`, `年金`, `就業規則`, `転職相談`, `キャリア相談`, `FP1級`, `FP`, `ファイナンシャルプランナー`, `保険`, `家計`, `資産形成`, `ライフプラン`, `記事執筆`, `ライター`, `監修`, `コラム`, `相談`.
-5. Rank jobs and market signals with `references/evaluation-guide.md`.
-6. Downgrade anything with unclear scope, weekday-heavy operations, professional-liability ambiguity, credential/reputation risk, or off-platform pressure.
-7. Save the report when the user asks for the recurring report flow. Use `reports/YYYY-MM-DD-coconala-report.md` in the current repository, then run the requested git add/commit/push steps when appropriate.
+6. Use narrow searches with Coconala plus terms such as `社労士`, `社会保険労務士`, `労務`, `退職`, `退職相談`, `退職前`, `退職後`, `退職したい`, `会社を辞めたい`, `有給消化`, `離職票`, `傷病手当金`, `失業保険`, `雇用保険`, `健康保険`, `国民健康保険`, `任意継続`, `社会保険`, `年金`, `就業規則`, `転職相談`, `キャリア相談`, `FP1級`, `FP`, `ファイナンシャルプランナー`, `保険`, `家計`, `資産形成`, `ライフプラン`, `記事執筆`, `ライター`, `監修`, `コラム`, `相談`.
+7. Fix the fetch fallback order and record the method actually used:
+   - direct HTML fetch
+   - alternate public URLs or category pages
+   - web search and public snippets
+8. Rank jobs and market signals with `references/evaluation-guide.md`.
+9. Downgrade anything with unclear scope, weekday-heavy operations, professional-liability ambiguity, credential/reputation risk, or off-platform pressure.
+10. Before writing the report, check the previous expected run date. If there is no matching report file, same-day memory entry, or same-day session trace, treat it as a missed run and mention it in memory and in the next report.
+11. Save the report when the user asks for the recurring report flow. Prefer `reports/YYYY-MM-DD-coconala-report.md` in GitHub repository `takastuding/coconala-crowdworks-opportunity-reports` unless the user explicitly names another repository. If the local repo/remote is unavailable, use `gh api` GitHub Contents API or Git Data API to create/update the same path.
+12. Use a fixed GitHub save sequence:
+   - check path
+   - create or update file
+   - verify `html_url`
+   - record commit URL
+13. Before finishing an automation run, append a UTF-8 memory entry with:
+   - `Fetch method`
+   - `Saved report`
+   - `Commit`
+   - `Failure`
+   - `Next expected run`
+
+## Coconala Fetching Notes
+
+Coconala public pages can be large and partly client-rendered, but search and request pages often include enough server-rendered HTML to extract useful facts.
+
+- Prefer direct public URLs:
+  - `https://coconala.com/requests?keyword=<urlencoded keyword>`
+  - `https://coconala.com/search?keyword=<urlencoded keyword>`
+  - `https://coconala.com/requests/<id>`
+  - `https://coconala.com/services/<id>`
+- If web search snippets are sparse, fetch pages directly with `curl.exe -L --max-time 60 -s -o <tmpfile> <url>`.
+- Read cached HTML as UTF-8. On Windows, PowerShell's default decoding can display mojibake; use `Get-Content -Encoding UTF8`.
+- For request pages, look for `/requests/<id>` cards and extract `c-itemInfo_category`, `c-itemInfo_title`, `c-itemInfo_description`, `投稿日時`, `d-requestBudget`, `応募者数`, and `募集期限`.
+- For service search pages, look for `/services/<id>` blocks and extract `c-serviceListItemColContentHeader_overview`, `catchphrase`, `description`, seller name, price, rating, and review count.
+- Treat repeated request IDs across keyword searches as one candidate. Record which keywords surfaced it, but rank once.
+- Direct detail pages may have different markup from search cards; use meta title/description and nearby text as fallback.
+- If fetching is partial, state the limitation and rank conservatively. Do not invent listings.
+
+## GitHub Report Saving Notes
+
+For the recurring report flow, use `takastuding/coconala-crowdworks-opportunity-reports`. When the report must be saved to another GitHub repository:
+
+1. Check whether the path exists with `gh api repos/<owner>/<repo>/contents/<path>`.
+2. For simple create/update, use GitHub Contents API with base64 content and `sha` when updating.
+3. If shell pipes or local writes are blocked, create a Git blob from an existing temp file with `gh api -X POST repos/<owner>/<repo>/git/blobs -F content=@<file> -f encoding=utf-8`, then create tree, commit, and update `refs/heads/<branch>`.
+4. Verify with `gh api repos/<owner>/<repo>/contents/<path> --jq '{html_url:.html_url, sha:.sha, size:.size}'`.
+5. Include the saved file URL or commit URL in the final response.
+6. On failure, write `Failure: github-save:<stage>` to memory before exiting.
+7. On a same-day rerun, update only `reports/YYYY-MM-DD-coconala-report.md` with its current `sha`; never modify a CrowdWorks report.
 
 ## User Fit
 
@@ -83,6 +134,8 @@ Use Japanese. Include:
 
 When no strong jobs are found, do not invent listings. Report the searches, weak candidates, and the best service/profile/blog improvements instead.
 
+When a missed scheduled run is detected, add a short note near the top of the report that an earlier scheduled run appears to have been missed and that the current report is the latest available snapshot.
+
 ## Drafting Rules
 
 Write proposals and service copy that are honest and confident:
@@ -93,7 +146,18 @@ Write proposals and service copy that are honest and confident:
 - Avoid overpromising legal, tax, investment, benefit eligibility, subsidy, or labor outcomes.
 - Prefer a low-friction first step: one article, one outline, one text consultation, a trial review, or a small fixed-scope service.
 
+## Automation Logging
+
+For recurring automation runs, memory updates must be UTF-8 and concise. A good final entry shape is:
+
+- `Run started: <ISO8601 timestamp>`
+- `Target report date: YYYY-MM-DD`
+- `Fetch method: direct-html | alternate-url | web-search`
+- `Saved report: <file URL>`
+- `Commit: <commit URL>`
+- `Failure: <stage or none>`
+- `Next expected run: <ISO8601 timestamp>`
+
 ## Resources
 
 Read `references/evaluation-guide.md` when ranking jobs, interpreting service-market signals, or writing the final report.
-

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Coconala Opportunity Research"
+  short_description: "Find safe Coconala retirement, labor, and FP side-business leads."
+  default_prompt: "Research Coconala buyer requests and service-market signals for retirement consultation, labor/social-insurance, and FP side-business opportunities, then save a Japanese ranked report to GitHub takastuding/coconala-crowdworks-opportunity-reports."
+
+policy:
+  allow_implicit_invocation: true
